@@ -17,4 +17,4 @@ $(EXE): $(OBJECTS)
 	$(CC) $(CCOPTS) -o $@ $^
 
 run: all
-	./$(EXE)
+	./$(EXE) fsys.txt
