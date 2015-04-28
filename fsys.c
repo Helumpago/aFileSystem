@@ -1,10 +1,24 @@
 
+#include <stdio.h>
+#include <stddef.h>
+#include <sys/types.h>
+#include "disk.h"
+
 /*
  * Creates a new filesystem virtual disk
  * @param disk_name: Name of the new disk (i.e., Linux system filename)
  */
 int make_fs(char* disk_name) {
+	/// Attempt to open disk, incase it already exists
+	if(open_disk(disk_name) == 0) {
+		printf("Disk already exists\n");
+		return 0;
+	}
 
+	/// Create new disk
+	make_disk(disk_name);
+
+	return 0;
 }
 
 /*
@@ -12,7 +26,7 @@ int make_fs(char* disk_name) {
  * @param disk_name: Path to the disk to mount
  */
 int mount_fs(char* disk_name) {
-
+	return -1;
 }
 
 /*
@@ -20,7 +34,7 @@ int mount_fs(char* disk_name) {
  * @param disk_name: Disk to unmount
  */
 int umount_fs(char* disk_name) {
-
+	return -1;
 }
 
 /*
@@ -28,7 +42,7 @@ int umount_fs(char* disk_name) {
  * @param name: Name of the file to open
  */
 int fs_open(char* name) {
-
+	return -1;
 }
 
 /*
@@ -36,7 +50,7 @@ int fs_open(char* name) {
  * @param fildes: File descriptor that should be closed
  */
 int fs_close(int fildes) {
-
+	return -1;
 }
 
 /*
@@ -44,7 +58,7 @@ int fs_close(int fildes) {
  * @param name: Name of the new file
  */
 int fs_create(char* name) {
-
+	return -1;
 }
 
 /*
@@ -52,7 +66,7 @@ int fs_create(char* name) {
  * @param name: File to delete
  */
 int fs_delete(char* name) {
-
+	return -1;
 }
 
 /*
@@ -65,7 +79,7 @@ int fs_delete(char* name) {
  * 			Returns negative if there was an error.
  */
 int fs_read(int fildes, void* buf, size_t nbyte) {
-
+	return -1;
 }
 
 /*
@@ -75,7 +89,7 @@ int fs_read(int fildes, void* buf, size_t nbyte) {
  * @param nbyte: number of bytes to write
  */
 int fs_write(int fildes, void* buf, size_t nbyte) {
-
+	return -1;
 }
 
 /*
@@ -83,7 +97,7 @@ int fs_write(int fildes, void* buf, size_t nbyte) {
  * @param fildes: File descriptor
  */
 int fs_get_fileszie(int fildes) {
-
+	return -1;
 }
 
 /*
@@ -92,7 +106,7 @@ int fs_get_fileszie(int fildes) {
  * @param offset: New location from start of file
  */
 int fs_lseek(int fildes, off_t offset) {
-
+	return -1;
 }
 
 /*
@@ -101,5 +115,5 @@ int fs_lseek(int fildes, off_t offset) {
  * @param length: New length for the truncated file
  */
 int fs_truncate(int fildes, off_t length) {
-
+	return -1;
 }
