@@ -9,13 +9,6 @@
  * @param disk_name: Name of the new disk (i.e., Linux system filename)
  */
 int make_fs(char* disk_name) {
-	/// Attempt to open disk, incase it already exists
-	if(open_disk(disk_name) == 0) {
-		printf("Disk already exists\n");
-		return 0;
-	}
-
-	/// Create new disk
 	make_disk(disk_name);
 
 	return 0;
@@ -26,6 +19,8 @@ int make_fs(char* disk_name) {
  * @param disk_name: Path to the disk to mount
  */
 int mount_fs(char* disk_name) {
+	open_disk(disk_name);
+
 	return -1;
 }
 
@@ -34,6 +29,8 @@ int mount_fs(char* disk_name) {
  * @param disk_name: Disk to unmount
  */
 int umount_fs(char* disk_name) {
+	close_disk();
+
 	return -1;
 }
 
