@@ -21,7 +21,7 @@ int make_fs(char* disk_name) {
 int mount_fs(char* disk_name) {
 	open_disk(disk_name);
 
-	return -1;
+	return 0;
 }
 
 /*

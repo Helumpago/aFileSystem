@@ -1,6 +1,6 @@
 
 #include <stdlib.h>
-#include "linkedlist.h"
+#include "file.h"
 
 /*
  * Initialize a new block set node
@@ -10,20 +10,23 @@ struct block_set* new_blst() {
 	struct block_set* nblst = malloc(sizeof(struct block_set));
 	nblst->is_alloc = 0;
 	nblst->num_blocks = 0;
-	nblst->offset = 0;
+	nblst->block_num = 0;
 	nblst->next = NULL;
 
 	return nblst;
 }
 
 /*
- * Insert a new node after the block pointed to by the given block offset
+ * Inserts a new node into the list. Largest fit first
+ * @param head: List to insert into
  * @param new: Block set to be inserted
- * @param offset: Offset of the block set that this block should be inserted after
  * 
  * @return 0 if successful, 
  */
-int insert_blst(struct block_set* bls) {
+int insert_blst(struct block_set* head, struct block_set* bls) {
+	struct block_set* curr = head;
+	
+
 	return -1;
 }
 
