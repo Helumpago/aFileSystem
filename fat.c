@@ -1,13 +1,13 @@
 
 #include <stdlib.h>
-#include "file.h"
+#include "fat.h"
 
 /*
  * Initialize a new block set node
  * @return Reference to the new block set
  */
-struct block_set* new_blst() {
-	struct block_set* nblst = malloc(sizeof(struct block_set));
+struct fat* new_blst() {
+	struct fat* nblst = malloc(sizeof(struct fat));
 	nblst->is_alloc = 0;
 	nblst->num_blocks = 0;
 	nblst->block_num = 0;
@@ -23,8 +23,8 @@ struct block_set* new_blst() {
  * 
  * @return 0 if successful, 
  */
-int insert_blst(struct block_set* head, struct block_set* bls) {
-	struct block_set* curr = head;
+int insert_blst(struct fat* head, struct fat* bls) {
+	struct fat* curr = head;
 	
 
 	return -1;

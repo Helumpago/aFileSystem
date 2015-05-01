@@ -10,16 +10,16 @@
  * free or already allocated to a file. Each node holds the offset 
  * of the start of the first block in the block set.
  */
-struct block_set {
+struct fat {
 	char is_alloc; // 0 if free, 1 if allocated
 	char num_blocks; // Number of blocks in this block set
 	int block_num; // Block number. IOW, multiplying block_num by the size of blocks should give this block's offset
 
-	struct block_set* next;
+	struct fat* next;
 };
 
-struct block_set* new_blst(); // Initialize a new block set node
-int insert_blst(struct block_set* head, struct block_set* bls); // Inserts a new node into the list based off its file offset
+struct fat* new_blst(); // Initialize a new block set node
+int insert_blst(struct fat* head, struct fat* bls); // Inserts a new node into the list based off its file offset
 int release_blst(off_t offset); // Free the block set pointed to by the given offset
 
 #endif
