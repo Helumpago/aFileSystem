@@ -86,18 +86,16 @@ int fs_create(char* name) {
 
 	/// Get and initialize a block
 	off_t block = get_free_bl();
-	printf("Putting file in %ld\n", block);
 	strcpy(buff, "0");
 	block_write(block, buff); // Set block as allocated
 	print_block(block);
 
 	/// Insert new file record at the end of file list
+	block_read(0, buff);
 	if(BLOCK_SIZE - strlen(buff) <= MAX_KV_SIZE) // If no more room for another file-offset mapping, can't store another file.
 		return SO_MUCH_FILE;
 
-	block_read(0, buff);
 	sprintf(buff, "%s%s:%ld;", buff, name, block);
-	printf("New metaline: %s\n", buff);
 	block_write(0, buff);
 
 	return 0;

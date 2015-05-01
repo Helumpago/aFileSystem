@@ -8,6 +8,7 @@
 
 char* get_path(int argc, char** argv);
 void mount(char* fsys_path);
+int spam_files();
 
 int main(int argc, char** argv) {
 	char* fsys_path = get_path(argc, argv); // Path to the filesystem virtual disk
@@ -20,9 +21,10 @@ int main(int argc, char** argv) {
 	printf("--- File system mounted --- \n");
 
 	printf("--- Creating test files ---\n");
-	fs_create("Test.txt");
-	fs_create("Test2.txt");
-	printf("--- New file created --- \n");
+	printf("Created %d new files\n", spam_files());
+	printf("--- New files created --- \n");
+
+	print_block(0);
 
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
@@ -41,4 +43,21 @@ char* get_path(int argc, char** argv) {
 	}
 
 	return argv[1];
+}
+
+/**
+ * Dumps files onto the filesystem until it decides it can't handle any more
+ * @return Number of files created before filesystem rejected
+ */
+int spam_files() {
+	char fname[16];
+	int count = 0;
+
+	do {
+		count++;
+		sprintf(fname, "t%d", count);
+		printf("Creating %s\n", fname);
+	} while(fs_create(fname) == 0);
+	
+	return count;
 }
