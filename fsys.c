@@ -3,26 +3,36 @@
 #include <stddef.h>
 #include <sys/types.h>
 #include <string.h>
+#include <stdlib.h>
 #include "fsys.h"
 #include "disk.h"
 #include "dir.h"
 
+/* Constants */
 #define DATASTART DISK_BLOCKS / 2 // The start of the actual data. Everything before this is "reserved"
 #define METABL 0 // Block ID for the meta block
 #define SMALLBUFF 256 // Size for various I/O buffers
 #define FREESTR "-1" // If a block starts with this symbol, that block is free.
 #define MAX_KV_SIZE 15 + 4 + 2 // Max size of a file key-value mapping in the metadata. 15 characters for file name, 4 characters for offset, 2 characters for delimiters
 
+/* Macros */
 #define isfree(buff) strcmp(buff, FREESTR) == 0
 
 /* Error codes */
 #define NO_BLOCKS -1 // There are no blocks available on the disk
 #define SO_MUCH_FILE -2 // There are too many files alread in the system; can't create another one.
+#define VERY_DESCRIPTION -3 // There are too many file descriptors open
+#define WOW -4 // No real reason for this.
 
+/* Global variables */
+struct fildes_table open_fildes; // List of open file descriptors
+
+/* Helper functions */
 off_t get_free_bl();
 
+/* Implementation */
 /*
-	 * Creates a new filesystem virtual disk
+ * Creates a new filesystem virtual disk
  * @param disk_name: Name of the new disk (i.e., Linux system filename)
  */
 int make_fs(char* disk_name) {
@@ -66,7 +76,16 @@ int umount_fs(char* disk_name) {
  * @param name: Name of the file to open
  */
 int fs_open(char* name) {
-	return -1;
+	int fd = open_fildes.num_open;
+	if(fd + 1 >= MAX_DESC) {
+		return VERY_DESCRIPTION;
+	}
+
+	struct fildes* new = malloc(sizeof(struct fildes));
+	open_fildes.fds[fd] = new;
+	open_fildes.num_open++;
+
+	return fd;
 }
 
 /*
@@ -85,10 +104,12 @@ int fs_create(char* name) {
 	char buff[BLOCK_SIZE];
 
 	/// Get and initialize a block
-	off_t block = get_free_bl();
+	off_t block = 0;
+	if((block = get_free_bl()) < 0) // If the search for a free block failed, return the error code
+		return block;
+
 	strcpy(buff, "0");
 	block_write(block, buff); // Set block as allocated
-	print_block(block);
 
 	/// Insert new file record at the end of file list
 	block_read(0, buff);

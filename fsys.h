@@ -1,11 +1,22 @@
 #ifndef __FSYS_H__
 #define __FSYS_H__
 
+#define MAX_DESC 32 // Maximum number of concurrent file descriptors allowed
+
 /**
- * Contains metadata for this filesystem
+ * Describes a single file descriptor
  */
-struct super_t {
-	off_t free_blocks; // Reference to the first link in the free block list
+struct fildes {
+
+};
+
+/**
+ * Contains the mapping from integers to file descriptors
+ * Supports 32 concurrent file descriptors
+ */
+struct fildes_table {
+	struct fildes* fds[MAX_DESC]; // Reference to all open file descriptors
+	int num_open; // Number of open descriptors.
 };
 
 int make_fs(char* disk_name);
