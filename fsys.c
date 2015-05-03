@@ -177,6 +177,9 @@ int fs_read(int fildes, void* buf, size_t nbyte) {
 	char readBuff[BLOCK_SIZE];
 	char* offset = NULL;
 	
+	if(file == NULL)
+		return BAD_FILDES;
+	
 	// read the block from disk
 	block_read(file->blk_num, readBuff);
 	
@@ -267,6 +270,21 @@ int fs_get_fileszie(int fildes) {
  * @param offset: New location from start of file
  */
 int fs_lseek(int fildes, off_t offset) {
+	struct fildes* file = get_file(fildes);
+	
+	
+	if(file == NULL)
+		return BAD_FILDES;
+		
+	// just go to that point in the block
+	if(offset < BLOCK_SIZE){
+		file->blk_off = offset;
+		return offset;
+	}
+	else{
+		
+	}
+	
 	return -1;
 }
 

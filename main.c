@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 	printf("--- Reopening closed file ---\n");
 	file2 = fs_open("tester");
 	printf("File opened. file2 == %d\n", file2);
-	char tmp_buff[25] = "************************";
+	char tmp_buff[25] = "***1********************";
 	printf("fs_write returned with code %d\n", fs_write(file2, tmp_buff, 2400));
 	print_block(0);
 	print_block(1);
@@ -80,12 +80,20 @@ int main(int argc, char** argv) {
 	printf("--- Reopened closed file ---\n\n");
 	
 	printf("--- Testing Reading Files ---\n\n");
-	char* buf[25];
+	char buf[25];
 	fs_close(file2);
 	file2 = fs_open("tester");
 	
 	fs_read(file2, buf, 24);
 	printf("%s\n", buf);
+	
+	printf("--- Seeking File ---\n\n");
+	char buf2[25];
+	fs_close(file2);
+	file2 = fs_open("tester");
+	fs_lseek(file2, 5);
+	fs_read(file2, buf2, 19);
+	printf("%s\n",buf2);
 	
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
