@@ -114,6 +114,13 @@ int fs_open(char* name) {
  * @param fildes: File descriptor that should be closed
  */
 int fs_close(int fildes) {
+	if(fildes < 0 || fildes > MAX_DESC)
+		return BAD_FILDES;
+
+	free(open_fildes.fds[fildes]);
+	open_fildes.fds[fildes] = NULL;
+	open_fildes.num_open--;
+
 	return -1;
 }
 

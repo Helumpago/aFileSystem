@@ -31,14 +31,10 @@ int main(int argc, char** argv) {
 	mount_fs(fsys_path);
 	printf("--- File system mounted --- \n\n");
 
-	printf("--- Creating test files ---\n");
-	//printf("Created %d new files\n", spam_files());
-	fs_create("t1");
-	fs_create("tester");
-	printf("--- New files created --- \n\n");
-
 	printf("--- Writing to files ---\n");
-	int file = fs_open("t1");
+	fs_create("foo");
+	fs_create("tester");
+	int file = fs_open("foo");
 	int file2 = fs_open("tester");
 	string_gen(dump, SIZE_DUMP);
 	fs_write(file, dump, SIZE_DUMP);
@@ -52,9 +48,22 @@ int main(int argc, char** argv) {
 	print_block(6);
 	printf("--- Wrote to files ---\n\n");
 
+	printf("--- Spamming test files ---\n");
+	printf("Created %d new files\n", spam_files());
+	printf("--- New files created --- \n\n");
+
 	printf("--- Opening files ---\n");
 	printf("Opened %d files before filesystem rejected request\n", open_files());
 	printf("--- Opened files ---\n\n");
+
+	printf("--- Closing some files ---\n");
+	fs_close(file);
+	if(fs_write(file, dump, SIZE_DUMP) < 0) {
+		printf("Writing to a closed file failed\n");
+	} else {
+		printf("Writing to a closed file succeeded :-(\n");
+	}
+	printf("--- Files closed ---\n\n");
 
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
@@ -80,15 +89,13 @@ char* get_path(int argc, char** argv) {
  * @return Number of files created before filesystem rejected
  */
 int spam_files() {
-	//char fname[16];
+	char fname[16];
 	int count = 0;
 
-/*	do {
+	do {
 		count++;
 		sprintf(fname, "t%d", count);
-	} while(fs_create(fname) == 0);*/
-	
-	fs_create("t1");
+	} while(fs_create(fname) == 0);
 
 	return count;
 }
