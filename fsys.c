@@ -127,8 +127,10 @@ int fs_create(char* name) {
 		return block;
 
 	/// Check whether file already exists
-	if(get_head(name) != NO_FILE)
+	if(get_head(name) != NO_FILE) {
+		printf("File %s already exists!\n", name);
 		return FILE_EXISTS;
+	}
 
 	/// Insert new file record at the end of file list
 	block_read(0, buff);
@@ -298,15 +300,6 @@ int fs_truncate(int fildes, off_t length) {
 	return -1;
 }
 
-/*
- * deletes the file with the given name
- * @param name: the name of the file to delete
- * @returns: 0 for success, -1 for failure
- */
-int fs_delete(char* name){
-	return -1;
-}
-
 /**
  * Print out the contents of a specific block
  */
@@ -370,7 +363,7 @@ int get_head(char* fname) {
 			i++;
 
 		/// File has been found!
-		if(strncmp(fname, kv, i) == 0) {
+		if(strncmp(fname, kv + i, FILENAME_SIZE) == 0) {
 			file_found = 1;
 			break;
 		}
