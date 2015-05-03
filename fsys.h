@@ -13,6 +13,7 @@
 #define NO_FILE -6 // No file with that name exists
 #define NAME_TOO_LARGE -7
 #define FILE_EXISTS -8 // Can't create the file because a file with that name already exists
+#define LSEEK_OUT_OF_BOUNDS -9 // Asked to seek past the end of the file
 
 /**
  * Describes a single file descriptor

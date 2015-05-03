@@ -289,14 +289,33 @@ int fs_lseek(int fildes, off_t offset) {
 	if(file == NULL)
 		return BAD_FILDES;
 
-	int blk_stop = (offset + BLK_META_SIZE) / BLOCK_SIZE; // Get the block into which the cursor should be placed
-	int off_stop = (offset + BLK_META_SIZE) % BLOCK_SIZE; // Get the offset into that block
-
 	file->blk_num = get_head(file->fname);
-	while(file->blk_num != blk_stop)
-		file->blk_num = get_next_blk(file->blk_num);
 
+	int blk_stop = offset / BLOCK_SIZE; // Get the number of blocks from the start of the file
+	int off_stop = offset % BLOCK_SIZE; // Get the offset into that block
+
+	printf("blk_stop == %d\n", blk_stop);
+	printf("off_stop == %d\n", off_stop);
+
+	int i = 0;
+	int curr_blk = file->blk_num;
+	for(i = 0; i < blk_stop; i++) {
+		curr_blk = get_next_blk(file->blk_num);
+		if(curr_blk == 0) // If this is the last block in the list,
+			break;
+		else if(curr_blk < 0) // General error case
+			return curr_blk;
+	}
+
+	if(i != blk_stop) { // If requested seek distance is past the end of the file,
+		return LSEEK_OUT_OF_BOUNDS;
+	}
+
+	file->blk_num = curr_blk;
 	file->blk_off = off_stop;
+
+	printf("New blk_num == %d\n", file->blk_num);
+	printf("New blk_off == %ld\n", file->blk_off);
 
 	return 0;
 }

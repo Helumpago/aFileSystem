@@ -48,13 +48,13 @@ int main(int argc, char** argv) {
 	print_block(6);*/
 	printf("--- Wrote to files ---\n\n");
 
-/*	printf("--- Spamming test files ---\n");
+	printf("--- Spamming test files ---\n");
 	printf("Created %d new files\n", spam_files());
-	printf("--- New files created --- \n\n");*/
-/*
+	printf("--- New files created --- \n\n");
+
 	printf("--- Opening files ---\n");
 	printf("Opened %d files before filesystem rejected request\n", open_files());
-	printf("--- Opened files ---\n\n");*/
+	printf("--- Opened files ---\n\n");
 
 	printf("--- Closing some files ---\n");
 	fs_close(file2);
@@ -87,16 +87,18 @@ int main(int argc, char** argv) {
 	printf("Reading 24 bytes from start of file: %s\n", buf);
 	printf("--- Files read ---\n\n");
 	
-	/*printf("--- Seeking File ---\n\n");
-	char buf2[25];
+	printf("--- Seeking File ---\n");
+	char buf2[7];
+	strcpy(buf2, "-------");
+
 	fs_close(file2);
 	file2 = fs_open("tester");
-	fs_lseek(file2, 5);
-	fs_read(file2, buf2, 19);
-	printf("%s\n",buf2);
-	printf("--- Finished seeking ---\n\n");*/
-	
 
+	printf("lseek errcode == %d\n", fs_lseek(file2, 5));
+	fs_write(file2, buf2, 7);
+	print_block(2);
+	printf("--- Finished seeking ---\n\n");
+	
 	printf("--- Checking file size ---\n");
 	printf("Size of tester file: %d\n", fs_get_filesize(file2));
 	printf("--- File size check complete---\n\n");
