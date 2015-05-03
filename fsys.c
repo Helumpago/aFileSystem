@@ -72,9 +72,14 @@ int umount_fs(char* disk_name) {
  * @param name: Name of the file to open
  */
 int fs_open(char* name) {
+	if(strcmp(name, "tester") == 0){
+		printf("The thing\n");
+	}
+
 	/// Look for available filedescriptor slot
+	printf("num_open == %d\n", open_fildes.num_open);
 	int fd = 0;
-	if(open_fildes.num_open > MAX_DESC) {
+	if(open_fildes.num_open >= MAX_DESC) {
 		return VERY_DESCRIPTION;
 	}
 	for(fd = 0; fd < MAX_DESC; fd++) {
