@@ -158,6 +158,7 @@ int fs_create(char* name) {
 /*
  * Deletes the given file
  * @param name: File to delete
+ * @return: 0 for success, -1 for failure
  */
 int fs_delete(char* name) {
 	return -1;
@@ -257,14 +258,6 @@ int fs_write(int fildes, void* buf, size_t nbyte) {
 }
 
 /*
- * Get the size of the given file
- * @param fildes: File descriptor
- */
-int fs_get_fileszie(int fildes) {
-	return -1;
-}
-
-/*
  * Seek to an offset from the start of the file
  * @param fildes: File descriptor
  * @param offset: New location from start of file
@@ -294,6 +287,15 @@ int fs_lseek(int fildes, off_t offset) {
  * @param length: New length for the truncated file
  */
 int fs_truncate(int fildes, off_t length) {
+	return -1;
+}
+
+/*
+ * deletes the file with the given name
+ * @param name: the name of the file to delete
+ * @returns: 0 for success, -1 for failure
+ */
+int fs_delete(char* name){
 	return -1;
 }
 
