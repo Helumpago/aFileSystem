@@ -7,7 +7,7 @@
  * Describes a single file descriptor
  */
 struct fildes {
-
+	off_t cursor; // Cursor's offset from the start of the file
 };
 
 /**

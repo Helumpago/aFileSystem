@@ -6,7 +6,7 @@ LINKOPTS = -g
 
 # Output files
 EXE=out
-OBJECTS=disk.o main.o fsys.o fat.o dir.o
+OBJECTS=disk.o main.o fsys.o
 
 all: $(EXE)
 	

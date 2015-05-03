@@ -18,22 +18,28 @@ int main(int argc, char** argv) {
 
 	printf("--- Making initial file system ---\n");
 	make_fs(fsys_path);
-	printf("--- File system created --- \n");
+	printf("--- File system created --- \n\n");
 	printf("--- Mounting file system ---\n");
 	mount_fs(fsys_path);
-	printf("--- File system mounted --- \n");
+	printf("--- File system mounted --- \n\n");
 
 	printf("--- Creating test files ---\n");
 	printf("Created %d new files\n", spam_files());
-	printf("--- New files created --- \n");
+	printf("--- New files created --- \n\n");
+
+	printf("--- Writing to files ---\n");
+	int file = fs_open("t1");
+	fs_write(file, "Hello world? ", 12);
+	fs_write(file, "MOAR text", 12);
+	printf("--- Wrote to files ---\n\n");
 
 	printf("--- Opening files ---\n");
 	printf("Opened %d files before filesystem rejected request\n", open_files());
-	printf("--- Opened files ---\n");
+	printf("--- Opened files ---\n\n");
 
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
-	printf("--- Filesystem unmounted ---\n");
+	printf("--- Filesystem unmounted ---\n\n");
 
 	return 0;
 }
@@ -82,8 +88,10 @@ int open_files() {
 			i++;
 		kv[i] = '\0';
 
-		if(fs_open(kv) < 0)
+		int ret_val = fs_open(kv);
+		if(ret_val < 0) {
 			return count;
+		}
 
 		count++;
 	}

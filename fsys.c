@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include "fsys.h"
 #include "disk.h"
-#include "dir.h"
 
 /* Constants */
 #define DATASTART DISK_BLOCKS / 2 // The start of the actual data. Everything before this is "reserved"
@@ -23,12 +22,14 @@
 #define SO_MUCH_FILE -2 // There are too many files alread in the system; can't create another one.
 #define VERY_DESCRIPTION -3 // There are too many file descriptors open
 #define WOW -4 // No real reason for this.
+#define BAD_FILDES -5 // Requested an invalid file descriptor
 
 /* Global variables */
 struct fildes_table open_fildes; // List of open file descriptors
 
 /* Helper functions */
 off_t get_free_bl();
+struct fildes* get_file(int fildes);
 
 /* Implementation */
 /*
@@ -82,6 +83,7 @@ int fs_open(char* name) {
 	}
 
 	struct fildes* new = malloc(sizeof(struct fildes));
+	new->cursor = 0;
 	open_fildes.fds[fd] = new;
 	open_fildes.num_open++;
 
@@ -150,7 +152,35 @@ int fs_read(int fildes, void* buf, size_t nbyte) {
  * @param nbyte: number of bytes to write
  */
 int fs_write(int fildes, void* buf, size_t nbyte) {
-	return -1;
+	char contents[BLOCK_SIZE]; // Contents of a block
+
+	/// Get file descriptor
+	struct fildes* file = get_file(fildes);
+	if(file == NULL)
+		return BAD_FILDES;
+
+	/// Write to file
+	int blk_num = file->cursor / BLOCK_SIZE + 1; // The block that the cursor is in
+	off_t blk_off = file->cursor % BLOCK_SIZE; // Offset from the start of this block
+	
+	block_read(blk_num, contents);
+	contents[blk_off] = '\0'; // Mark position of cursor
+	sprintf(contents, "%s%s", contents, buf);
+	block_write(blk_num, contents);
+	file->cursor += strlen(buf);
+
+	print_block(blk_num);
+
+	return strlen(buf);
+
+	/*int nwrote = 0; // Number of bytes written
+	for(; nwrote <= nbyte; buff += BLOCK_SIZE, nwrote += BLOCK_SIZE) {
+		contents[blk_off] = '\0'; // Mark position of cursor
+		sprintf(contents, "%s%s", contents, buf);
+		if(BLOCK_SIZE - blk_off - strsize(buf) < 0) { // Not enough room in one block
+			// TODO: Chunk files
+		}
+	}*/
 }
 
 /*
@@ -203,4 +233,15 @@ off_t get_free_bl() {
 	}
 
 	return NO_BLOCKS;
+}
+
+/**
+ * Returns the file that corresponds to the given file descriptor.
+ * Return value NULL if fildes is invalid
+ */
+struct fildes* get_file(int fildes) {
+	if(fildes < 0 || fildes > MAX_DESC)
+		return NULL;
+
+	return open_fildes.fds[fildes];
 }
