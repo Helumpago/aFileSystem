@@ -12,6 +12,7 @@
 #define BAD_FILDES -5 // Requested an invalid file descriptor
 #define NO_FILE -6 // No file with that name exists
 #define NAME_TOO_LARGE -7
+#define FILE_EXISTS -8 // Can't create the file because a file with that name already exists
 
 /**
  * Describes a single file descriptor

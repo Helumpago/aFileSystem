@@ -79,6 +79,10 @@ int main(int argc, char** argv) {
 	print_block(6);
 	printf("--- Reopened closed file ---\n\n");
 
+	printf("--- Checking file size ---\n");
+	printf("Size of tester file: %d\n", fs_get_filesize(file2));
+	printf("--- File size check complete---\n");
+
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
 	printf("--- Filesystem unmounted ---\n\n");
