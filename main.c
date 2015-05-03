@@ -87,6 +87,13 @@ int main(int argc, char** argv) {
 	fs_read(file2, buf, 24);
 	printf("%s\n", buf);
 	
+	char buff[8000];
+	fs_close(file);
+	file = fs_open("foo");
+	
+	fs_read(file,buff, 8000);
+	printf("%s\n",buff);
+	
 	printf("--- Seeking File ---\n\n");
 	char buf2[25];
 	fs_close(file2);
@@ -172,7 +179,8 @@ int open_files() {
 void string_gen(char* buf, int nbytes) {
 	int i = 0;
 	for(; i <= nbytes - 1; i++) {
-		buf[i] = '1';//(rand() % 95) + 32; // Random printable character
+		//buf[i] = '1';//(rand() % 95) + 32; // Random printable character
+		(rand() % 95) + 32; // Random printable character
 	}
 	buf[nbytes] = '\0';
 }
