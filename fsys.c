@@ -89,7 +89,6 @@ int fs_open(char* name) {
 
 	/// Create descriptor
 	new->blk_num = get_head(name);
-	printf("get_head == %d\n", new->blk_num);
 	new->blk_off = 0;
 	open_fildes.fds[fd] = new;
 	open_fildes.num_open++;
@@ -129,7 +128,6 @@ int fs_create(char* name) {
 
 	/// Check whether file already exists
 	if(get_head(name) != NO_FILE) {
-		printf("File %s already exists!\n", name);
 		return FILE_EXISTS;
 	}
 
@@ -275,10 +273,8 @@ int fs_get_filesize(int fildes) {
 	int blk_count = 0;
 	int curr_blk = 0;
 	for(curr_blk = get_head(file->fname); curr_blk > 0; curr_blk = get_next_blk(curr_blk)) {
-		printf("curr_blk == %d\n", curr_blk);
 		blk_count++;
 	}
-	printf("After exiting, curr_blk == %d\n", curr_blk);
 
 	return blk_count * BLOCK_SIZE;
 }
@@ -378,7 +374,6 @@ int get_head(char* fname) {
 		kv[i] = '\0';
 
 		/// File has been found!
-		printf("fname == %s\tcurrname == %s\n", fname, kv);
 		if(strncmp(fname, kv, FILENAME_SIZE) == 0) {
 			file_found = 1;
 			break;

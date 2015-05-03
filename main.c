@@ -34,10 +34,8 @@ int main(int argc, char** argv) {
 	printf("--- Writing to files ---\n");
 	fs_create("foo");
 	fs_create("tester");
-	print_block(0);
 	int file = fs_open("foo");
 	int file2 = fs_open("tester");
-	printf("file == %d\tfile2 == %d\n", file, file2);
 	string_gen(dump, SIZE_DUMP);
 	fs_write(file, dump, SIZE_DUMP);
 	fs_write(file2, dump, SIZE_DUMP);
@@ -61,17 +59,16 @@ int main(int argc, char** argv) {
 	printf("--- Closing some files ---\n");
 	fs_close(file2);
 	if(fs_write(file2, dump, SIZE_DUMP) < 0) {
-		printf("Writing to a closed file failed\n");
+		printf("Writing to a closed file failed. This is good news\n");
 	} else {
-		printf("Writing to a closed file succeeded :-(\n");
+		printf("Writing to a closed file succeeded. This is bad news\n");
 	}
 	printf("--- Files closed ---\n\n");
 
 	printf("--- Reopening closed file ---\n");
 	file2 = fs_open("tester");
-	printf("File opened. file2 == %d\n", file2);
 	char tmp_buff[25] = "***1********************";
-	printf("fs_write returned with code %d\n", fs_write(file2, tmp_buff, 2400));
+	fs_write(file2, tmp_buff, 2400);
 	print_block(0);
 	print_block(1);
 	print_block(2);
@@ -85,10 +82,10 @@ int main(int argc, char** argv) {
 	char buf[25];
 	fs_close(file2);
 	file2 = fs_open("tester");
-	printf("--- Files read ---\n");
-	
+
 	fs_read(file2, buf, 24);
-	printf("%s\n", buf);
+	printf("Reading 24 bytes from start of file: %s\n", buf);
+	printf("--- Files read ---\n\n");
 	
 	/*printf("--- Seeking File ---\n\n");
 	char buf2[25];
@@ -176,8 +173,8 @@ int open_files() {
 void string_gen(char* buf, int nbytes) {
 	int i = 0;
 	for(; i <= nbytes - 1; i++) {
-		//buf[i] = '1';//(rand() % 95) + 32; // Random printable character
-		(rand() % 95) + 32; // Random printable character
+		buf[i] = '1';//(rand() % 95) + 32; // Random printable character
+		//(rand() % 95) + 32; // Random printable character
 	}
 	buf[nbytes] = '\0';
 }
