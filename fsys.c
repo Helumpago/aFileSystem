@@ -187,6 +187,7 @@ int fs_write(int fildes, void* buf, size_t nbyte) {
 		contents[file->blk_off + BLK_META_SIZE] = '\0';
 		int block_space = BLOCK_SIZE - BLK_META_SIZE - file->blk_off;
 		strncpy(new_contents, buf, block_space);
+		new_contents[block_space] = '\0';
 		sprintf(contents, "%s%s", contents, new_contents);
 		block_write(file->blk_num, contents);
 

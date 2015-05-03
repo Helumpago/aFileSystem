@@ -117,7 +117,7 @@ int open_files() {
 void string_gen(char* buf, int nbytes) {
 	int i = 0;
 	for(; i <= nbytes - 1; i++) {
-		buf[i] = (rand() % 95) + 32; // Random printable character
+		buf[i] = '1';//(rand() % 95) + 32; // Random printable character
 	}
 	buf[nbytes] = '\0';
 }
