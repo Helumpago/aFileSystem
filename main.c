@@ -34,27 +34,29 @@ int main(int argc, char** argv) {
 	printf("--- Writing to files ---\n");
 	fs_create("foo");
 	fs_create("tester");
+	print_block(0);
 	int file = fs_open("foo");
 	int file2 = fs_open("tester");
+	printf("file == %d\tfile2 == %d\n", file, file2);
 	string_gen(dump, SIZE_DUMP);
 	fs_write(file, dump, SIZE_DUMP);
 	fs_write(file2, dump, SIZE_DUMP);
-	print_block(0);
+	/*print_block(0);
 	print_block(1);
 	print_block(2);
 	print_block(3);
 	print_block(4);
 	print_block(5);
-	print_block(6);
+	print_block(6);*/
 	printf("--- Wrote to files ---\n\n");
 
-	printf("--- Spamming test files ---\n");
+/*	printf("--- Spamming test files ---\n");
 	printf("Created %d new files\n", spam_files());
-	printf("--- New files created --- \n\n");
-
+	printf("--- New files created --- \n\n");*/
+/*
 	printf("--- Opening files ---\n");
 	printf("Opened %d files before filesystem rejected request\n", open_files());
-	printf("--- Opened files ---\n\n");
+	printf("--- Opened files ---\n\n");*/
 
 	printf("--- Closing some files ---\n");
 	fs_close(file2);
@@ -79,26 +81,28 @@ int main(int argc, char** argv) {
 	print_block(6);
 	printf("--- Reopened closed file ---\n\n");
 	
-	printf("--- Testing Reading Files ---\n\n");
+	printf("--- Testing Reading Files ---\n");
 	char buf[25];
 	fs_close(file2);
 	file2 = fs_open("tester");
+	printf("--- Files read ---\n");
 	
 	fs_read(file2, buf, 24);
 	printf("%s\n", buf);
 	
-	printf("--- Seeking File ---\n\n");
+	/*printf("--- Seeking File ---\n\n");
 	char buf2[25];
 	fs_close(file2);
 	file2 = fs_open("tester");
 	fs_lseek(file2, 5);
 	fs_read(file2, buf2, 19);
 	printf("%s\n",buf2);
+	printf("--- Finished seeking ---\n\n");*/
 	
 
 	printf("--- Checking file size ---\n");
 	printf("Size of tester file: %d\n", fs_get_filesize(file2));
-	printf("--- File size check complete---\n");
+	printf("--- File size check complete---\n\n");
 
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);

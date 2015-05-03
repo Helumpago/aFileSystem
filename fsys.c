@@ -89,6 +89,7 @@ int fs_open(char* name) {
 
 	/// Create descriptor
 	new->blk_num = get_head(name);
+	printf("get_head == %d\n", new->blk_num);
 	new->blk_off = 0;
 	open_fildes.fds[fd] = new;
 	open_fildes.num_open++;
@@ -274,21 +275,19 @@ int fs_get_filesize(int fildes) {
  */
 int fs_lseek(int fildes, off_t offset) {
 	struct fildes* file = get_file(fildes);
-	
-	
 	if(file == NULL)
 		return BAD_FILDES;
-		
-	// just go to that point in the block
-	if(offset < BLOCK_SIZE){
-		file->blk_off = offset;
-		return offset;
-	}
-	else{
-		
-	}
-	
-	return -1;
+
+	int blk_stop = (offset + BLK_META_SIZE) / BLOCK_SIZE; // Get the block into which the cursor should be placed
+	int off_stop = (offset + BLK_META_SIZE) % BLOCK_SIZE; // Get the offset into that block
+
+	file->blk_num = get_head(file->fname);
+	while(file->blk_num != blk_stop)
+		file->blk_num = get_next_blk(file->blk_num);
+
+	file->blk_off = off_stop;
+
+	return 0;
 }
 
 /*
@@ -361,9 +360,11 @@ int get_head(char* fname) {
 		i = 0;
 		while(kv[i] != ':')
 			i++;
+		kv[i] = '\0';
 
 		/// File has been found!
-		if(strncmp(fname, kv + i, FILENAME_SIZE) == 0) {
+		printf("fname == %s\tcurrname == %s\n", fname, kv);
+		if(strncmp(fname, kv, FILENAME_SIZE) == 0) {
 			file_found = 1;
 			break;
 		}
