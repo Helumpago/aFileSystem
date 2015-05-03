@@ -298,15 +298,6 @@ int fs_truncate(int fildes, off_t length) {
 	return -1;
 }
 
-/*
- * deletes the file with the given name
- * @param name: the name of the file to delete
- * @returns: 0 for success, -1 for failure
- */
-int fs_delete(char* name){
-	return -1;
-}
-
 /**
  * Print out the contents of a specific block
  */
