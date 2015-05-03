@@ -78,7 +78,15 @@ int main(int argc, char** argv) {
 	print_block(5);
 	print_block(6);
 	printf("--- Reopened closed file ---\n\n");
-
+	
+	printf("--- Testing Reading Files ---\n\n");
+	char* buf[25];
+	fs_close(file2);
+	file2 = fs_open("tester");
+	
+	fs_read(file2, buf, 24);
+	printf("%s\n", buf);
+	
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
 	printf("--- Filesystem unmounted ---\n\n");
