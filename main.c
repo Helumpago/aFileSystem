@@ -10,7 +10,7 @@
 #include "fsys.h"
 #include "disk.h"
 
-#define SIZE_DUMP 4096
+#define SIZE_DUMP 8200
 
 char* get_path(int argc, char** argv);
 void mount(char* fsys_path);
@@ -32,15 +32,24 @@ int main(int argc, char** argv) {
 	printf("--- File system mounted --- \n\n");
 
 	printf("--- Creating test files ---\n");
-	printf("Created %d new files\n", spam_files());
+	//printf("Created %d new files\n", spam_files());
+	fs_create("t1");
+	fs_create("tester");
 	printf("--- New files created --- \n\n");
 
 	printf("--- Writing to files ---\n");
 	int file = fs_open("t1");
+	int file2 = fs_open("tester");
 	string_gen(dump, SIZE_DUMP);
 	fs_write(file, dump, SIZE_DUMP);
+	fs_write(file2, dump, SIZE_DUMP);
+	print_block(0);
 	print_block(1);
 	print_block(2);
+	print_block(3);
+	print_block(4);
+	print_block(5);
+	print_block(6);
 	printf("--- Wrote to files ---\n\n");
 
 	printf("--- Opening files ---\n");
@@ -71,7 +80,7 @@ char* get_path(int argc, char** argv) {
  * @return Number of files created before filesystem rejected
  */
 int spam_files() {
-	char fname[16];
+	//char fname[16];
 	int count = 0;
 
 /*	do {
