@@ -184,9 +184,24 @@ int fs_read(int fildes, void* buf, size_t nbyte) {
 		strncpy(buf, offset, nbyte);
 		return nbyte;
 	}
-	// otherwise, find the next block!
+	// otherwise, gonna need to find the next block!
 	else{
+		strncpy(buf, offset, strlen(offset));
 		
+		while((file->blk_num = get_next_blk(file->blk_num)) > 0){
+			// read the block from disk
+			block_read(file->blk_num, readBuff);
+			// set the first byte to the offset
+			offset = readBuff + file->blk_off + BLK_META_SIZE - 1;
+			
+			// if the end is in this block, you're done!
+			if(strlen(offset) >= nbyte){
+				strncpy(buf, offset, nbyte);
+				return nbyte;
+			}else{ // otherwise, add it to the string and go again
+				strncat(buf, offset, strlen(offset));
+			}
+		}
 	}
 
 	return -1;
