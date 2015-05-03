@@ -177,6 +177,26 @@ int fs_delete(char* name) {
  * 			Returns negative if there was an error.
  */
 int fs_read(int fildes, void* buf, size_t nbyte) {
+	struct fildes* file = open_fildes.fds[fildes];
+	char* readBuff = NULL;
+	
+	// read the block from disk
+	block_read(file->blk_num, readBuff);
+	
+	// set the first byte to the offset
+	readBuff = readBuff + file->blk_off;
+	
+	// if the read does not run off the block
+	// return it
+	if(strlen(readBuff) >= nbyte){
+		buf = (void*)readBuff;
+		return nbyte;
+	}
+	// otherwise, find the next block!
+	else{
+		
+	}
+	
 	return -1;
 }
 
