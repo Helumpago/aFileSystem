@@ -72,16 +72,21 @@ int umount_fs(char* disk_name) {
  * @param name: Name of the file to open
  */
 int fs_open(char* name) {
-	int fd = open_fildes.num_open;
-	if(fd + 1 >= MAX_DESC) {
+	/// Look for available filedescriptor slot
+	int fd = 0;
+	if(open_fildes.num_open > MAX_DESC) {
 		return VERY_DESCRIPTION;
+	}
+	for(fd = 0; fd < MAX_DESC; fd++) {
+		if(open_fildes.fds[fd] == NULL)
+			break;
 	}
 
 	/// Find filename
 	char buff[BLOCK_SIZE];
 	char *kv = NULL;
-	int file_found = 0; // Flag indicating whether the file was found
 	int i = 0;
+	int file_found = 0; // Flag indicating whether the file was found
 	block_read(0, buff);
 	for(kv = strtok(buff, ";"); kv != NULL; kv = strtok(NULL, ";")) {
 		/// Get only the filename (key) portion of the key-value pair

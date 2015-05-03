@@ -57,13 +57,26 @@ int main(int argc, char** argv) {
 	printf("--- Opened files ---\n\n");
 
 	printf("--- Closing some files ---\n");
-	fs_close(file);
-	if(fs_write(file, dump, SIZE_DUMP) < 0) {
+	fs_close(file2);
+	if(fs_write(file2, dump, SIZE_DUMP) < 0) {
 		printf("Writing to a closed file failed\n");
 	} else {
 		printf("Writing to a closed file succeeded :-(\n");
 	}
 	printf("--- Files closed ---\n\n");
+
+	printf("--- Reopening closed file ---\n");
+	file2 = fs_open("tester");
+	char tmp_buff[26] = "************************";
+	printf("fs_write returned with code %d\n", fs_write(file2, tmp_buff, 26));
+	print_block(0);
+	print_block(1);
+	print_block(2);
+	print_block(3);
+	print_block(4);
+	print_block(5);
+	print_block(6);
+	printf("--- Reopened closed file ---\n");
 
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
