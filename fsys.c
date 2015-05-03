@@ -25,6 +25,8 @@ struct fildes_table open_fildes; // List of open file descriptors
 off_t get_free_bl();
 struct fildes* get_file(int fildes);
 void build_block(int block_id);
+int get_head(char* fname);
+int get_next_blk(int init_blk);
 
 /* Implementation */
 /*
@@ -73,7 +75,6 @@ int umount_fs(char* disk_name) {
  */
 int fs_open(char* name) {
 	/// Look for available filedescriptor slot
-	printf("num_open == %d\n", open_fildes.num_open);
 	int fd = 0;
 	if(open_fildes.num_open >= MAX_DESC) {
 		return VERY_DESCRIPTION;
@@ -83,31 +84,11 @@ int fs_open(char* name) {
 			break;
 	}
 
-	/// Find filename
-	char buff[BLOCK_SIZE];
-	char *kv = NULL;
-	int i = 0;
-	int file_found = 0; // Flag indicating whether the file was found
-	block_read(0, buff);
-	for(kv = strtok(buff, ";"); kv != NULL; kv = strtok(NULL, ";")) {
-		/// Get only the filename (key) portion of the key-value pair
-		i = 0;
-		while(kv[i] != ':')
-			i++;
-
-		/// File has been found!
-		if(strncmp(name, kv, i) == 0) {
-			file_found = 1;
-			break;
-		}
-	}
-
-	if(!file_found)
-		return NO_FILE;
+	struct fildes* new = malloc(sizeof(struct fildes));
+	strncpy(new->fname, name, FILENAME_SIZE);
 
 	/// Create descriptor
-	struct fildes* new = malloc(sizeof(struct fildes));
-	new->blk_num = atoi(kv + i + 1);
+	new->blk_num = get_head(name);
 	new->blk_off = 0;
 	open_fildes.fds[fd] = new;
 	open_fildes.num_open++;
@@ -137,10 +118,17 @@ int fs_close(int fildes) {
 int fs_create(char* name) {
 	char buff[BLOCK_SIZE];
 
+	if(strlen(name) > FILENAME_SIZE)
+		return NAME_TOO_LARGE;
+
 	/// Get and initialize a block
 	off_t block = 0;
 	if((block = get_free_bl()) < 0) // If the search for a free block failed, return the error code
 		return block;
+
+	/// Check whether file already exists
+	if(get_head(name) != NO_FILE)
+		return FILE_EXISTS;
 
 	/// Insert new file record at the end of file list
 	block_read(0, buff);
@@ -258,6 +246,26 @@ int fs_write(int fildes, void* buf, size_t nbyte) {
 }
 
 /*
+ * Get the number of blocks in the file
+ * @param fildes: File descriptor
+ */
+int fs_get_filesize(int fildes) {
+	struct fildes* file = get_file(fildes);
+	if(file == NULL)
+		return BAD_FILDES;
+
+	int blk_count = 0;
+	int curr_blk = 0;
+	for(curr_blk = get_head(file->fname); curr_blk > 0; curr_blk = get_next_blk(curr_blk)) {
+		printf("curr_blk == %d\n", curr_blk);
+		blk_count++;
+	}
+	printf("After exiting, curr_blk == %d\n", curr_blk);
+
+	return blk_count * BLOCK_SIZE;
+}
+
+/*
  * Seek to an offset from the start of the file
  * @param fildes: File descriptor
  * @param offset: New location from start of file
@@ -342,4 +350,45 @@ struct fildes* get_file(int fildes) {
 void build_block(int block_id) {
 	char buff[5] = "0000";
 	block_write(block_id, buff);
+}
+
+
+/**
+ * Returns the block number that is the first block in the block list
+ * for the given file
+ */
+int get_head(char* fname) {
+	char buff[BLOCK_SIZE];
+	char *kv = NULL;
+	int i = 0;
+	int file_found = 0; // Flag indicating whether the file was found
+	block_read(0, buff);
+	for(kv = strtok(buff, ";"); kv != NULL; kv = strtok(NULL, ";")) {
+		/// Get only the filename (key) portion of the key-value pair
+		i = 0;
+		while(kv[i] != ':')
+			i++;
+
+		/// File has been found!
+		if(strncmp(fname, kv, i) == 0) {
+			file_found = 1;
+			break;
+		}
+	}
+
+	if(!file_found)
+		return NO_FILE;
+
+	return atoi(kv + i + 1);
+}
+
+/**
+ * Get the next block that init_blk refers to
+ */
+int get_next_blk(int init_blk) {
+	char buff[BLOCK_SIZE];
+
+	block_read(init_blk, buff);
+	buff[BLK_META_SIZE] = '\0';
+	return atoi(buff);
 }

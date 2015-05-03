@@ -95,6 +95,11 @@ int main(int argc, char** argv) {
 	fs_read(file2, buf2, 19);
 	printf("%s\n",buf2);
 	
+
+	printf("--- Checking file size ---\n");
+	printf("Size of tester file: %d\n", fs_get_filesize(file2));
+	printf("--- File size check complete---\n");
+
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
 	printf("--- Filesystem unmounted ---\n\n");
