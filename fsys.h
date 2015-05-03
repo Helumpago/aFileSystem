@@ -2,6 +2,7 @@
 #define __FSYS_H__
 
 #define MAX_DESC 32 // Maximum number of concurrent file descriptors allowed
+#define FILENAME_SIZE 15 // Max length of a name of a file
 
 /* Error codes */
 #define NO_BLOCKS -1 // There are no blocks available on the disk
@@ -10,11 +11,13 @@
 #define WOW -4 // No real reason for this.
 #define BAD_FILDES -5 // Requested an invalid file descriptor
 #define NO_FILE -6 // No file with that name exists
+#define NAME_TOO_LARGE -7
 
 /**
  * Describes a single file descriptor
  */
 struct fildes {
+	char fname[FILENAME_SIZE];
 	int blk_num; // Block the cursor is in
 	off_t blk_off; // Offset from the beginning of this block
 };
@@ -37,7 +40,7 @@ int fs_create(char* name);
 int fs_delete(char* name);
 int fs_read(int fildes, void* buf, size_t nbyte);
 int fs_write(int fildes, void* buf, size_t nbyte);
-int fs_get_fileszie(int fildes);
+int fs_get_filesize(int fildes);
 int fs_lseek(int fildes, off_t offset);
 int fs_truncate(int fildes, off_t length);
 void print_block(int block);

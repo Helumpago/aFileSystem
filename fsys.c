@@ -73,7 +73,6 @@ int umount_fs(char* disk_name) {
  */
 int fs_open(char* name) {
 	/// Look for available filedescriptor slot
-	printf("num_open == %d\n", open_fildes.num_open);
 	int fd = 0;
 	if(open_fildes.num_open >= MAX_DESC) {
 		return VERY_DESCRIPTION;
@@ -82,6 +81,9 @@ int fs_open(char* name) {
 		if(open_fildes.fds[fd] == NULL)
 			break;
 	}
+
+	struct fildes* new = malloc(sizeof(struct fildes));
+	strncpy(new->fname, name, FILENAME_SIZE);
 
 	/// Find filename
 	char buff[BLOCK_SIZE];
@@ -106,7 +108,6 @@ int fs_open(char* name) {
 		return NO_FILE;
 
 	/// Create descriptor
-	struct fildes* new = malloc(sizeof(struct fildes));
 	new->blk_num = atoi(kv + i + 1);
 	new->blk_off = 0;
 	open_fildes.fds[fd] = new;
@@ -136,6 +137,9 @@ int fs_close(int fildes) {
  */
 int fs_create(char* name) {
 	char buff[BLOCK_SIZE];
+
+	if(strlen(name) > FILENAME_SIZE)
+		return NAME_TOO_LARGE;
 
 	/// Get and initialize a block
 	off_t block = 0;
@@ -236,7 +240,13 @@ int fs_write(int fildes, void* buf, size_t nbyte) {
  * Get the size of the given file
  * @param fildes: File descriptor
  */
-int fs_get_fileszie(int fildes) {
+int fs_get_filesize(int fildes) {
+	struct fildes* file = get_file(fildes);
+	if(file == NULL)
+		return BAD_FILDES;
+
+
+
 	return -1;
 }
 
