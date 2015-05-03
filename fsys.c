@@ -72,10 +72,6 @@ int umount_fs(char* disk_name) {
  * @param name: Name of the file to open
  */
 int fs_open(char* name) {
-	if(strcmp(name, "tester") == 0){
-		printf("The thing\n");
-	}
-
 	/// Look for available filedescriptor slot
 	printf("num_open == %d\n", open_fildes.num_open);
 	int fd = 0;
@@ -200,7 +196,6 @@ int fs_write(int fildes, void* buf, size_t nbyte) {
 	if(nbyte > strlen(buf))
 		nbyte = strlen(buf);
 
-	printf("Writing to block %d at offset %ld\n", file->blk_num, file->blk_off);
 	while(nwrote < nbyte) {
 		/// Write new block
 		block_read(file->blk_num, contents);

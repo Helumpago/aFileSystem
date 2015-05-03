@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 	print_block(4);
 	print_block(5);
 	print_block(6);
-	printf("--- Reopened closed file ---\n");
+	printf("--- Reopened closed file ---\n\n");
 
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
