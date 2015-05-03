@@ -126,11 +126,15 @@ char* get_path(int argc, char** argv) {
 int spam_files() {
 	char fname[16];
 	int count = 0;
+	int err_code = 0;
 
 	do {
 		count++;
 		sprintf(fname, "t%d", count);
-	} while(fs_create(fname) == 0);
+		err_code = fs_create(fname);
+	} while(err_code == 0);
+
+	printf("Filesystem declined new file with error code %d\n", err_code);
 
 	return count;
 }

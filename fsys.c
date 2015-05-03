@@ -127,8 +127,10 @@ int fs_create(char* name) {
 		return block;
 
 	/// Check whether file already exists
-	if(get_head(name) != NO_FILE)
+	if(get_head(name) != NO_FILE) {
+		printf("File %s already exists!\n", name);
 		return FILE_EXISTS;
+	}
 
 	/// Insert new file record at the end of file list
 	block_read(0, buff);
@@ -361,7 +363,7 @@ int get_head(char* fname) {
 			i++;
 
 		/// File has been found!
-		if(strncmp(fname, kv, i) == 0) {
+		if(strncmp(fname, kv + i, FILENAME_SIZE) == 0) {
 			file_found = 1;
 			break;
 		}
