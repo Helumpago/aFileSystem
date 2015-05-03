@@ -8,21 +8,15 @@
 #include "disk.h"
 
 /* Constants */
-#define DATASTART DISK_BLOCKS / 2 // The start of the actual data. Everything before this is "reserved"
+//#define DATASTART DISK_BLOCKS / 2 // The start of the actual data. Everything before this is "reserved"
 #define METABL 0 // Block ID for the meta block
 #define SMALLBUFF 256 // Size for various I/O buffers
 #define FREESTR "-1" // If a block starts with this symbol, that block is free.
-#define MAX_KV_SIZE 15 + 4 + 2 // Max size of a file key-value mapping in the metadata. 15 characters for file name, 4 characters for offset, 2 characters for delimiters
+#define BLK_META_SIZE 5 // Number of reserved characters at the beginning of each block
+#define MAX_KV_SIZE 15 + BLK_META_SIZE + 2 // Max size of a file key-value mapping in the metadata. 15 characters for file name, BLK_META_SIZE characters for meta, 2 characters for delimiters
 
 /* Macros */
 #define isfree(buff) strcmp(buff, FREESTR) == 0
-
-/* Error codes */
-#define NO_BLOCKS -1 // There are no blocks available on the disk
-#define SO_MUCH_FILE -2 // There are too many files alread in the system; can't create another one.
-#define VERY_DESCRIPTION -3 // There are too many file descriptors open
-#define WOW -4 // No real reason for this.
-#define BAD_FILDES -5 // Requested an invalid file descriptor
 
 /* Global variables */
 struct fildes_table open_fildes; // List of open file descriptors
@@ -30,6 +24,7 @@ struct fildes_table open_fildes; // List of open file descriptors
 /* Helper functions */
 off_t get_free_bl();
 struct fildes* get_file(int fildes);
+void build_block(int block_id);
 
 /* Implementation */
 /*
@@ -43,7 +38,7 @@ int make_fs(char* disk_name) {
 	open_disk(disk_name);
 
 	/// Set all free blocks
-	int i = DATASTART; // Start setting at block 4096; Everything before that is "reserved" for meta
+	int i = 1; // Start setting at block 4096; Everything before that is "reserved" for meta
 	for(; i < DISK_BLOCKS; i++) {
 		block_write(i, buff);
 	}
@@ -82,8 +77,32 @@ int fs_open(char* name) {
 		return VERY_DESCRIPTION;
 	}
 
+	/// Find filename
+	char buff[BLOCK_SIZE];
+	char *kv = NULL;
+	int file_found = 0; // Flag indicating whether the file was found
+	int i = 0;
+	block_read(0, buff);
+	for(kv = strtok(buff, ";"); kv != NULL; kv = strtok(NULL, ";")) {
+		/// Get only the filename (key) portion of the key-value pair
+		i = 0;
+		while(kv[i] != ':')
+			i++;
+
+		/// File has been found!
+		if(strncmp(name, kv, i) == 0) {
+			file_found = 1;
+			break;
+		}
+	}
+
+	if(!file_found)
+		return NO_FILE;
+
+	/// Create descriptor
 	struct fildes* new = malloc(sizeof(struct fildes));
-	new->cursor = 0;
+	new->blk_num = atoi(kv + i + 1);
+	new->blk_off = 0;
 	open_fildes.fds[fd] = new;
 	open_fildes.num_open++;
 
@@ -110,9 +129,6 @@ int fs_create(char* name) {
 	if((block = get_free_bl()) < 0) // If the search for a free block failed, return the error code
 		return block;
 
-	strcpy(buff, "0");
-	block_write(block, buff); // Set block as allocated
-
 	/// Insert new file record at the end of file list
 	block_read(0, buff);
 	if(BLOCK_SIZE - strlen(buff) <= MAX_KV_SIZE) // If no more room for another file-offset mapping, can't store another file.
@@ -120,6 +136,8 @@ int fs_create(char* name) {
 
 	sprintf(buff, "%s%s:%ld;", buff, name, block);
 	block_write(0, buff);
+
+	build_block(block);
 
 	return 0;
 }
@@ -153,6 +171,8 @@ int fs_read(int fildes, void* buf, size_t nbyte) {
  */
 int fs_write(int fildes, void* buf, size_t nbyte) {
 	char contents[BLOCK_SIZE]; // Contents of a block
+	char new_contents[BLOCK_SIZE]; // Holds the current chunk to be written
+	int nwrote = 0; // Number of bytes that have been written
 
 	/// Get file descriptor
 	struct fildes* file = get_file(fildes);
@@ -160,27 +180,41 @@ int fs_write(int fildes, void* buf, size_t nbyte) {
 		return BAD_FILDES;
 
 	/// Write to file
-	int blk_num = file->cursor / BLOCK_SIZE + 1; // The block that the cursor is in
-	off_t blk_off = file->cursor % BLOCK_SIZE; // Offset from the start of this block
-	
-	block_read(blk_num, contents);
-	contents[blk_off] = '\0'; // Mark position of cursor
-	sprintf(contents, "%s%s", contents, buf);
-	block_write(blk_num, contents);
-	file->cursor += strlen(buf);
+	while(nwrote < nbyte) {
+		/// Write new block
+		block_read(file->blk_num, contents);
+		print_block(file->blk_num);
+		contents[file->blk_off + BLK_META_SIZE] = '\0';
+		int block_space = BLOCK_SIZE - BLK_META_SIZE - file->blk_off;
+		strncpy(new_contents, buf, block_space);
+		sprintf(contents, "%s%s", contents, new_contents);
+		block_write(file->blk_num, contents);
 
-	print_block(blk_num);
+		int nwrite = (block_space > strlen(buf)) ? strlen(buf) : block_space;
+		file->blk_off += nwrite;
+		nwrote += nwrite;
+		buf += nwrite;
 
-	return strlen(buf);
+		/// Allocate a new block
+		if(file->blk_off >= BLOCK_SIZE - BLK_META_SIZE) {
+			off_t nblock = get_free_bl();
+			if(nblock < 0)
+				return nwrote;
 
-	/*int nwrote = 0; // Number of bytes written
-	for(; nwrote <= nbyte; buff += BLOCK_SIZE, nwrote += BLOCK_SIZE) {
-		contents[blk_off] = '\0'; // Mark position of cursor
-		sprintf(contents, "%s%s", contents, buf);
-		if(BLOCK_SIZE - blk_off - strsize(buf) < 0) { // Not enough room in one block
-			// TODO: Chunk files
+			build_block(nblock);
+
+			/// Link the new block into the file
+			block_read(file->blk_num, contents);
+			sprintf(contents, "%04ld%s", nblock, contents + BLK_META_SIZE);
+			block_write(file->blk_num, contents);
+			print_block(file->blk_num);
+
+			file->blk_num = nblock;
+			file->blk_off = 0;
 		}
-	}*/
+	}
+
+	return nwrote;
 }
 
 /*
@@ -225,7 +259,7 @@ void print_block(int block) {
  */
 off_t get_free_bl() {
 	char buff[BLOCK_SIZE];
-	int i = DATASTART;
+	int i = 1;
 	for(; i < DISK_BLOCKS; i++) {
 		block_read(i, buff);
 		if(isfree(buff))
@@ -244,4 +278,12 @@ struct fildes* get_file(int fildes) {
 		return NULL;
 
 	return open_fildes.fds[fildes];
+}
+
+/**
+ * Initialize a new block
+ */
+void build_block(int block_id) {
+	char buff[5] = "0000";
+	block_write(block_id, buff);
 }

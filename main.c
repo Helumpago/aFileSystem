@@ -5,16 +5,24 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include <stdlib.h>
 #include "fsys.h"
 #include "disk.h"
+
+#define SIZE_DUMP 4096
 
 char* get_path(int argc, char** argv);
 void mount(char* fsys_path);
 int spam_files();
 int open_files();
+void string_gen(char* buf, int nbytes);
 
 int main(int argc, char** argv) {
+	char dump[SIZE_DUMP];
 	char* fsys_path = get_path(argc, argv); // Path to the filesystem virtual disk
+
+	srand(time(NULL));
 
 	printf("--- Making initial file system ---\n");
 	make_fs(fsys_path);
@@ -29,8 +37,10 @@ int main(int argc, char** argv) {
 
 	printf("--- Writing to files ---\n");
 	int file = fs_open("t1");
-	fs_write(file, "Hello world? ", 12);
-	fs_write(file, "MOAR text", 12);
+	string_gen(dump, SIZE_DUMP);
+	fs_write(file, dump, SIZE_DUMP);
+	print_block(1);
+	print_block(2);
 	printf("--- Wrote to files ---\n\n");
 
 	printf("--- Opening files ---\n");
@@ -64,11 +74,13 @@ int spam_files() {
 	char fname[16];
 	int count = 0;
 
-	do {
+/*	do {
 		count++;
 		sprintf(fname, "t%d", count);
-	} while(fs_create(fname) == 0);
+	} while(fs_create(fname) == 0);*/
 	
+	fs_create("t1");
+
 	return count;
 }
 
@@ -97,4 +109,15 @@ int open_files() {
 	}
 
 	return count;
+}
+
+/**
+ * Generates a random string of given length
+ */
+void string_gen(char* buf, int nbytes) {
+	int i = 0;
+	for(; i <= nbytes - 1; i++) {
+		buf[i] = (rand() % 95) + 32; // Random printable character
+	}
+	buf[nbytes] = '\0';
 }

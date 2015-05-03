@@ -3,11 +3,20 @@
 
 #define MAX_DESC 32 // Maximum number of concurrent file descriptors allowed
 
+/* Error codes */
+#define NO_BLOCKS -1 // There are no blocks available on the disk
+#define SO_MUCH_FILE -2 // There are too many files alread in the system; can't create another one.
+#define VERY_DESCRIPTION -3 // There are too many file descriptors open
+#define WOW -4 // No real reason for this.
+#define BAD_FILDES -5 // Requested an invalid file descriptor
+#define NO_FILE -6 // No file with that name exists
+
 /**
  * Describes a single file descriptor
  */
 struct fildes {
-	off_t cursor; // Cursor's offset from the start of the file
+	int blk_num; // Block the cursor is in
+	off_t blk_off; // Offset from the beginning of this block
 };
 
 /**
