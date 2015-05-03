@@ -197,10 +197,14 @@ int fs_write(int fildes, void* buf, size_t nbyte) {
 		return BAD_FILDES;
 
 	/// Write to file
+	if(nbyte > strlen(buf))
+		nbyte = strlen(buf);
+
+	printf("Writing to block %d at offset %ld\n", file->blk_num, file->blk_off);
 	while(nwrote < nbyte) {
 		/// Write new block
 		block_read(file->blk_num, contents);
-		contents[file->blk_off + BLK_META_SIZE] = '\0';
+		contents[file->blk_off + BLK_META_SIZE - 1] = '\0';
 		int block_space = BLOCK_SIZE - BLK_META_SIZE - file->blk_off;
 		strncpy(new_contents, buf, block_space);
 		new_contents[block_space] = '\0';

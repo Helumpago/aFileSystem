@@ -65,11 +65,11 @@ int main(int argc, char** argv) {
 	}
 	printf("--- Files closed ---\n\n");
 
-	/*printf("--- Reopening closed file ---\n");
+	printf("--- Reopening closed file ---\n");
 	file2 = fs_open("tester");
-	printf("File opened. file2 == %d", file2);
-	char tmp_buff[26] = "************************";
-	printf("fs_write returned with code %d\n", fs_write(file2, tmp_buff, 26));
+	printf("File opened. file2 == %d\n", file2);
+	char tmp_buff[25] = "************************";
+	printf("fs_write returned with code %d\n", fs_write(file2, tmp_buff, 2400));
 	print_block(0);
 	print_block(1);
 	print_block(2);
@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 	print_block(4);
 	print_block(5);
 	print_block(6);
-	printf("--- Reopened closed file ---\n");*/
+	printf("--- Reopened closed file ---\n");
 
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
