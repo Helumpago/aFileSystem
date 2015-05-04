@@ -11,7 +11,7 @@
 //#define DATASTART DISK_BLOCKS / 2 // The start of the actual data. Everything before this is "reserved"
 #define METABL 0 // Block ID for the meta block
 #define SMALLBUFF 256 // Size for various I/O buffers
-#define FREESTR "-1" // If a block starts with this symbol, that block is free.
+#define FREESTR "-100" // If a block starts with this symbol, that block is free.
 #define BLK_META_SIZE 5 // Number of reserved characters at the beginning of each block
 #define MAX_KV_SIZE 15 + BLK_META_SIZE + 2 // Max size of a file key-value mapping in the metadata. 15 characters for file name, BLK_META_SIZE characters for meta, 2 characters for delimiters
 
@@ -164,6 +164,10 @@ int fs_delete(char* name) {
 	if(curr_blk < 0) // General error case
 		return curr_blk;
 
+	/// Delete blocks
+	int fildes = fs_open(name);
+	fs_truncate(fildes, 0);
+
 	/// Remove name-address pair from meta section
 	int name_end = 0; // Will hold the offset in the meta block of the end of the name protion of the name-address mapping for this file
 	char* kv = NULL;
@@ -190,7 +194,7 @@ int fs_delete(char* name) {
 	sprintf(buff, "%s%s", buff, kv + 1);
 	block_write(0, buff);
 
-	return -1;
+	return 0;
 }
 
 /*
@@ -372,7 +376,30 @@ int fs_lseek(int fildes, off_t offset) {
  * @param length: New length for the truncated file
  */
 int fs_truncate(int fildes, off_t length) {
-	return -1;
+	struct fildes* file = get_file(fildes);
+	if(file == NULL) // General error case
+		return BAD_FILDES;
+
+	int flen = fs_get_filesize(fildes);
+	if(length > flen)
+		return 0;
+
+	char buff[BLOCK_SIZE];
+	fs_lseek(fildes, length);
+	int curr_blk = file->blk_num;
+	int last_blk = curr_blk;
+	while(curr_blk > 0) {
+		curr_blk = get_next_blk(curr_blk);
+
+		/// Deallocate this block
+		block_read(last_blk, buff);
+		sprintf(buff, "%s", FREESTR);//, buff + BLK_META_SIZE - 1);
+		block_write(last_blk, buff);
+
+		last_blk = curr_blk;
+	}
+
+	return 0;
 }
 
 /**

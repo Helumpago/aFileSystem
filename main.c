@@ -105,11 +105,21 @@ int main(int argc, char** argv) {
 	printf("Size of tester file: %d\n", fs_get_filesize(file2));
 	printf("--- File size check complete---\n\n");
 
+	printf("--- Trying to truncate ---\n\n");
+	fs_truncate(file2, 4000);
+	print_block(2);
+	printf("--- Finished truncation ---\n\n");
+
 	printf("--- Trying to delete ---\n\n");	
 	fs_close(file2);
 	fs_delete("tester");
 	print_block(0);
+	print_block(2);
+	print_block(5);
+	print_block(6);
 	printf("--- Finished deleting ---\n\n");
+	fs_create("aNewFile");
+	print_block(0);
 
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
