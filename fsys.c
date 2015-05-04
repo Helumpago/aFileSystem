@@ -156,7 +156,39 @@ int fs_create(char* name) {
  * @return: 0 for success, -1 for failure
  */
 int fs_delete(char* name) {
+	char buff[BLOCK_SIZE];
+	if(is_open(name) == 1)
+		return ALREADY_OPEN;
 
+	int curr_blk = get_head(name);
+	if(curr_blk < 0) // General error case
+		return curr_blk;
+
+	/// Remove name-address pair from meta section
+	int name_end = 0; // Will hold the offset in the meta block of the end of the name protion of the name-address mapping for this file
+	char* kv = NULL;
+	block_read(0, buff);
+	for(kv = strtok(buff, ";"); kv != NULL; kv = strtok(NULL, ";")) {
+		name_end = 0;
+		while(kv[name_end] != ':') 
+			name_end++;
+		kv[name_end] = '\0';
+
+		if(strncmp(kv, name, BLOCK_SIZE) == 0) {
+			kv[name_end] = 'x'; // Don't want the key-value to be null terminated when I try to erase it
+			break;
+		}
+
+		kv[name_end] = ':';
+		kv[strlen(kv)] = ';';
+	}
+
+	printf("kv == %s\n", kv);
+	kv[0] = '\0';
+	for(kv++; *kv != '\0'; kv++); // Move to the end of the KV pair
+
+	sprintf(buff, "%s%s", buff, kv + 1);
+	block_write(0, buff);
 
 	return -1;
 }

@@ -97,6 +97,12 @@ int main(int argc, char** argv) {
 	printf("Size of tester file: %d\n", fs_get_filesize(file2));
 	printf("--- File size check complete---\n\n");
 
+	printf("--- Trying to delete ---\n\n");	
+	fs_close(file2);
+	fs_delete("tester");
+	print_block(0);
+	printf("--- Finished deleting ---\n\n");
+
 	printf("--- Unmounting filesystem ---\n");
 	umount_fs(fsys_path);
 	printf("--- Filesystem unmounted ---\n\n");
