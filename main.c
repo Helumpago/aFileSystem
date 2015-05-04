@@ -39,13 +39,6 @@ int main(int argc, char** argv) {
 	string_gen(dump, SIZE_DUMP);
 	fs_write(file, dump, SIZE_DUMP);
 	fs_write(file2, dump, SIZE_DUMP);
-	/*print_block(0);
-	print_block(1);
-	print_block(2);
-	print_block(3);
-	print_block(4);
-	print_block(5);
-	print_block(6);*/
 	printf("--- Wrote to files ---\n\n");
 
 	printf("--- Spamming test files ---\n");
@@ -54,6 +47,7 @@ int main(int argc, char** argv) {
 
 	printf("--- Opening files ---\n");
 	printf("Opened %d files before filesystem rejected request\n", open_files());
+	printf((fs_open("foo") > 0) ? "Could open a file a second time - bad" : "Couldn't open a file a second time - good\n");
 	printf("--- Opened files ---\n\n");
 
 	printf("--- Closing some files ---\n");
@@ -94,7 +88,7 @@ int main(int argc, char** argv) {
 	fs_close(file2);
 	file2 = fs_open("tester");
 
-	printf("lseek errcode == %d\n", fs_lseek(file2, 5));
+	printf("lseek errcode == %d\n", fs_lseek(file2, 4096));
 	fs_write(file2, buf2, 7);
 	print_block(2);
 	printf("--- Finished seeking ---\n\n");

@@ -14,6 +14,7 @@
 #define NAME_TOO_LARGE -7
 #define FILE_EXISTS -8 // Can't create the file because a file with that name already exists
 #define LSEEK_OUT_OF_BOUNDS -9 // Asked to seek past the end of the file
+#define ALREADY_OPEN -10 // File is already open; Can't open it again
 
 /**
  * Describes a single file descriptor

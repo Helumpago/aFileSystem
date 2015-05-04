@@ -27,6 +27,7 @@ struct fildes* get_file(int fildes);
 void build_block(int block_id);
 int get_head(char* fname);
 int get_next_blk(int init_blk);
+int is_open(char* filename);
 
 /* Implementation */
 /*
@@ -74,6 +75,11 @@ int umount_fs(char* disk_name) {
  * @param name: Name of the file to open
  */
 int fs_open(char* name) {
+	if(is_open(name) == 1) {
+		printf("File %s is already open\n", name);
+		return ALREADY_OPEN;
+	}
+
 	/// Look for available filedescriptor slot
 	int fd = 0;
 	if(open_fildes.num_open >= MAX_DESC) {
@@ -150,6 +156,8 @@ int fs_create(char* name) {
  * @return: 0 for success, -1 for failure
  */
 int fs_delete(char* name) {
+
+
 	return -1;
 }
 
@@ -414,4 +422,19 @@ int get_next_blk(int init_blk) {
 	block_read(init_blk, buff);
 	buff[BLK_META_SIZE] = '\0';
 	return atoi(buff);
+}
+
+/**
+ * Checks whether the given file is open
+ */
+int is_open(char* filename) {
+	int i = 0;
+	for(i = 0; i < MAX_DESC; i++) {
+		if(open_fildes.fds[i] != NULL && 
+			strncmp(filename, open_fildes.fds[i]->fname, FILENAME_SIZE) == 0)
+			
+			return 1;
+	}
+
+	return 0;
 }
