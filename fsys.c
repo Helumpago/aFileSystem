@@ -76,7 +76,6 @@ int umount_fs(char* disk_name) {
  */
 int fs_open(char* name) {
 	if(is_open(name) == 1) {
-		printf("File %s is already open\n", name);
 		return ALREADY_OPEN;
 	}
 
@@ -187,7 +186,6 @@ int fs_delete(char* name) {
 		kv[strlen(kv)] = ';';
 	}
 
-	printf("kv == %s\n", kv);
 	kv[0] = '\0';
 	for(kv++; *kv != '\0'; kv++); // Move to the end of the KV pair
 
@@ -344,9 +342,6 @@ int fs_lseek(int fildes, off_t offset) {
 	int blk_stop = offset / BLOCK_SIZE; // Get the number of blocks from the start of the file
 	int off_stop = offset % BLOCK_SIZE; // Get the offset into that block
 
-	printf("blk_stop == %d\n", blk_stop);
-	printf("off_stop == %d\n", off_stop);
-
 	int i = 0;
 	int curr_blk = file->blk_num;
 	for(i = 0; i < blk_stop; i++) {
@@ -363,9 +358,6 @@ int fs_lseek(int fildes, off_t offset) {
 
 	file->blk_num = curr_blk;
 	file->blk_off = off_stop;
-
-	printf("New blk_num == %d\n", file->blk_num);
-	printf("New blk_off == %ld\n", file->blk_off);
 
 	return 0;
 }
