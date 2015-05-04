@@ -174,6 +174,7 @@ int fs_read(int fildes, void* buf, size_t nbyte) {
 	struct fildes* file = open_fildes.fds[fildes];
 	char readBuff[BLOCK_SIZE];
 	char* offset = NULL;
+	int read = nbyte;
 	
 	if(file == NULL)
 		return BAD_FILDES;
@@ -188,26 +189,31 @@ int fs_read(int fildes, void* buf, size_t nbyte) {
 	// return it
 	if(strlen(offset) >= nbyte){
 		strncpy(buf, offset, nbyte);
-		return nbyte;
+		return read;
 	}
 	// otherwise, gonna need to find the next block!
 	else{
 		strncpy(buf, offset, strlen(offset));
+		nbyte -= strlen(offset);
 		
 		while((file->blk_num = get_next_blk(file->blk_num)) > 0){
+
 			// read the block from disk
 			block_read(file->blk_num, readBuff);
 			// set the first byte to the offset
 			offset = readBuff + file->blk_off + BLK_META_SIZE - 1;
-			
+
 			// if the end is in this block, you're done!
 			if(strlen(offset) >= nbyte){
-				strncpy(buf, offset, nbyte);
-				return nbyte;
+				strncat(buf, offset, nbyte);
+				return read;
 			}else{ // otherwise, add it to the string and go again
 				strncat(buf, offset, strlen(offset));
+				nbyte -= strlen(offset);
 			}
 		}
+		if(nbyte > 0)
+			return read-nbyte;
 	}
 
 	return -1;
@@ -420,7 +426,7 @@ int get_next_blk(int init_blk) {
 	char buff[BLOCK_SIZE];
 
 	block_read(init_blk, buff);
-	buff[BLK_META_SIZE] = '\0';
+	buff[BLK_META_SIZE - 1] = '\0';
 	return atoi(buff);
 }
 

@@ -79,6 +79,14 @@ int main(int argc, char** argv) {
 
 	fs_read(file2, buf, 24);
 	printf("Reading 24 bytes from start of file: %s\n", buf);
+	
+	
+	fs_close(file);
+	char buff[8500];
+	file = fs_open("foo");
+	
+	printf("%d\n",fs_read(file, buff, 8500));
+	printf("Reading 8500 bytes from start of file: %s\n", buff);
 	printf("--- Files read ---\n\n");
 	
 	printf("--- Seeking File ---\n");
